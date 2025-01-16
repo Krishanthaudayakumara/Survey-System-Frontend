@@ -41,9 +41,9 @@ export class SurveyDialogComponent {
       verticalPosition: 'bottom',
     });
   }
+
   deleteSurvey(surveyId: string) {
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);
-
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.apiService.deleteSurveyById(surveyId).subscribe((response) => {
@@ -51,5 +51,15 @@ export class SurveyDialogComponent {
         });
       }
     });
+  }
+
+   nextPage(): void {
+    this.data.nextPage();
+    this.dialog.closeAll();
+  }
+
+  previousPage(): void {
+    this.data.previousPage();
+    this.dialog.closeAll();
   }
 }
