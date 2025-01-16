@@ -1,9 +1,7 @@
-// src/app/user/user.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ApiService } from "../../shared/services/api.service"
+import { ApiService } from '../../shared/services/api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -12,8 +10,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   styleUrls: ['./user.component.css'],
 })
 export class UserComponent implements OnInit {
-  user: any; 
+  user: any;
   changePasswordForm!: FormGroup;
+  loadingBtn: boolean = false;
+  loading: boolean = true;
+
 
   constructor(
     private apiService: ApiService,
@@ -22,21 +23,20 @@ export class UserComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Fetch user details on component initialization
     this.apiService.getUserDetails().subscribe(
       (userDetails) => {
+        this.loading = false;
         this.user = userDetails;
       },
       (error) => {
-        console.error('Error fetching user details:', error);
+        this.loading = false;
         this.snackBar.open('Failed to fetch user details', 'Close', {
           duration: 3000,
           panelClass: ['error-snackbar'],
-        })
+        });
       }
     );
 
-    // Initialize change password form
     this.changePasswordForm = this.formBuilder.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', Validators.required],
@@ -46,24 +46,24 @@ export class UserComponent implements OnInit {
 
   onSubmitChangePassword() {
     if (this.changePasswordForm.valid) {
+      this.loadingBtn = true;
       const passwordData = {
         currentPassword: this.changePasswordForm.value.currentPassword,
         newPassword: this.changePasswordForm.value.newPassword,
       };
 
-      // Call API to change password
       this.apiService.changePassword(passwordData).subscribe(
         (response) => {
+          this.loadingBtn = false;
           this.snackBar.open(response.message, 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar'],
           });
 
-          // Reset the form after successful password change
           this.changePasswordForm.reset();
         },
         (error) => {
-          console.error('Error changing password:', error);
+          this.loadingBtn = false;
           this.snackBar.open('Failed to change password', 'Close', {
             duration: 3000,
             panelClass: ['error-snackbar'],

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../../shared/services/api.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, catchError, map, of, switchMap } from 'rxjs';
@@ -9,7 +9,6 @@ import { Observable, catchError, map, of, switchMap } from 'rxjs';
   templateUrl: './my-submissions-viewer.component.html',
   styleUrls: ['./my-submissions-viewer.component.css'],
 })
-
 export class MySubmissionsViewerComponent implements OnInit {
   responses: any[];
   loading: boolean = true;
@@ -20,10 +19,12 @@ export class MySubmissionsViewerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
+    private router: Router,
     private snackBar: MatSnackBar
   ) {
     this.responses = [];
   }
+
   ngOnInit(): void {
     this.apiService.getMySubmissions().subscribe(
       (responses) => {
@@ -32,9 +33,8 @@ export class MySubmissionsViewerComponent implements OnInit {
         this.loading = false;
       },
       (error) => {
-        console.error('Error fetching user responses:', error);
+        this.openSnackBar('Error fetching responses!');
         this.loading = false;
-
         if (error.status == 404) {
           this.errorMessage = 'No responses found!';
           this.openSnackBar('No responses found!');
@@ -57,14 +57,13 @@ export class MySubmissionsViewerComponent implements OnInit {
         this.apiService.getSurveyById(response.surveyId).subscribe(
           (surveyDetails) => {
             this.surveyDetailsMap[response.surveyId] = surveyDetails;
-
             // Save survey title in surveyTitles map
             if (surveyDetails && surveyDetails.title) {
               this.surveyTitles[response.surveyId] = surveyDetails.title;
             }
           },
           (error) => {
-            console.error('Error fetching survey details:', error);
+            this.openSnackBar('Some surveys are not available!');
           }
         );
       }
@@ -73,24 +72,22 @@ export class MySubmissionsViewerComponent implements OnInit {
 
   getQuestionTitle(surveyId: string, questionId: string): string {
     const surveyDetails = this.surveyDetailsMap[surveyId];
-
     if (surveyDetails) {
       const question = surveyDetails.pages
-        .flatMap((page: { elements: any; }) => page.elements)
-        .find((element: { name: string; }) => element.name === questionId);
-
+        .flatMap((page: { elements: any }) => page.elements)
+        .find((element: { name: string }) => element.name === questionId);
       return question ? question.title : 'Unknown Question';
     }
-
     return 'Unknown Survey';
   }
 
   getSurveyTitle(surveyId: string): string {
-    // Use the saved title from surveyTitles map
     return this.surveyTitles[surveyId] || 'Unknown Survey';
   }
-  
-  
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
 
   openSnackBar(message: string) {
     this.snackBar.open(message, 'Close', {

@@ -60,7 +60,6 @@
                 >
                   <mat-icon>analytics</mat-icon>
                 </button>
-                <!-- Add menu button and mat-menu inside ngFor -->
                 <button
                   class="item-button"
                   mat-icon-button
@@ -70,6 +69,14 @@
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #menu="matMenu">
+                  <button
+                    class="item-button"
+                    mat-menu-item
+                    (click)="copySurveyLink(survey.id)"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                    <span>Copy Survey Link</span>
+                  </button>
                   <button
                     class="item-button"
                     mat-menu-item
@@ -93,10 +100,6 @@
                   >
                     <mat-icon>analytics</mat-icon>
                     <span>Survey Analytics</span>
-                  </button>
-                  <button class="item-button" mat-menu-item>
-                    <mat-icon>group</mat-icon>
-                    <span>Access Roles</span>
                   </button>
                   <button
                     class="item-button"
